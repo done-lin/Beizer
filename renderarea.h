@@ -24,7 +24,6 @@ public:
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
-    int recordDotCnt;
     QVector <QPoint> mousePos;
 
 

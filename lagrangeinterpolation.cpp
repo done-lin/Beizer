@@ -13,6 +13,8 @@ qreal LagrangeInterpolation::legrange_get_ln(qreal inDataArray[][2], qint32 data
         for(qint32 j=0; j<=dataQty; j++){
             if(j != dotCnt){
                 multiplicativeSum *= (x-inDataArray[j][0])/(inDataArray[dotCnt][0] - inDataArray[j][0]);
+                qDebug("[%s]%d: mulitSum:%.02f", __FUNCTION__, __LINE__,
+                       multiplicativeSum);
             }
         }
     }

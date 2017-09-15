@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //mouseDotCnt(0)
 {
 
-    QGridLayout *mainLayout = new QGridLayout(this);//把renderarea画图区域加入gridlayout
+    //QGridLayout *mainLayout = new QGridLayout(this);//把renderarea画图区域加入gridlayout
     pMyRenderArea = new RenderArea(this);
     pMylegrange = new RenderArea(this);
     pMyBezierCruve = new BezierCruve(this);
@@ -28,6 +28,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(deskRect.width(), deskRect.height());
     pMyRenderArea->setFixedSize(deskRect.width(), deskRect.height());
     ui->setupUi(this);
+
+    ui->label->setGeometry(deskRect.width()/2-ui->label->width()/2, (deskRect.height()/2-ui->label->height()/2)/2, ui->label->width(), ui->label->height());
+    ui->label_2->setGeometry(deskRect.width()/2-ui->label_2->width()/2, (deskRect.height()/2-ui->label_2->height()/2)*1.2, ui->label_2->width(), ui->label_2->height());
 
 
     ui->tabWidget->addTab(pMyRenderArea, tr("BezierRender"));
@@ -44,22 +47,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
 
     clearBtn = new QPushButton(ui->tabWidget->currentWidget());
-    clearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16, deskRect.width()/7-10, deskRect.height()/16);
+    clearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16-5, deskRect.width()/7-10, deskRect.height()/16);
     clearBtn->setText("clear");
 
 
     repaintBtn = new QPushButton(ui->tabWidget->currentWidget());
-    repaintBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16*2.2, deskRect.width()/7-10, deskRect.height()/16);
-    repaintBtn->setText("set repaint");
+    repaintBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16*2.1-5, deskRect.width()/7-10, deskRect.height()/16);
+    repaintBtn->setText("set oneline");
+    repaintBtn->setStyleSheet("background-color:#00FF00");
 
-    //mainLayout->addWidget(ui->pushButton, 5, 5);
-    //mainLayout->setColumnStretch(5,1);
-    //mainLayout->setColumnMinimumWidth(5, 100);
-    //ui->tabWidget->currentWidget()->setLayout(mainLayout);
-    //ui->tabWidget->setLayout(mainLayout);
-
-    //ui->pushButton->setGeometry(deskRect.width()/7*6, deskRect.height()/16,
-    //                            deskRect.width()/7-10, deskRect.height()/16);
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
     acceptDrops();
