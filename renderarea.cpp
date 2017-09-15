@@ -72,6 +72,7 @@ void RenderArea::setTransformed(bool transformed)
 
 void RenderArea::getDotData(QVector<MY_POINT> cruveDots)
 {
+    //qDebug("IN curveDots szie:%d", cruveDots.size());
     drawData = cruveDots;
     update();
 }

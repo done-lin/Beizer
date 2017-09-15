@@ -21,7 +21,7 @@ public:
     ~MainWindow();
     RenderArea *pMyRenderArea;
     BezierCruve *pMyBezierCruve;
-    RenderArea *pMyLagrange;
+    RenderArea *pMyLagrangeRenderArea;
     LagrangeInterpolation *pMyLagrangeInterpolation;
 
 
@@ -38,6 +38,7 @@ signals:
     void signal_mouse_lbtn_pos_lagrange(QPoint lbtnPpos);
     void signal_set_desktop_geometry(QRect);
     void signal_clear_all_lines(void);
+
 
 public slots:
     void slot_draw_bezier(QPoint);

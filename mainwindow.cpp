@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //QGridLayout *mainLayout = new QGridLayout(this);//把renderarea画图区域加入gridlayout
     pMyRenderArea = new RenderArea(this);
-    pMyLagrange = new RenderArea(this);
+    pMyLagrangeRenderArea = new RenderArea(this);
     pMyBezierCruve = new BezierCruve(this);
     pMyLagrangeInterpolation = new LagrangeInterpolation(this);
 
@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->tabWidget->addTab(pMyRenderArea, tr("BezierRender"));
-    ui->tabWidget->addTab(pMyLagrange, tr("legrange"));
+    ui->tabWidget->addTab(pMyLagrangeRenderArea, tr("legrange"));
 
     ui->tabWidget->setGeometry(0,0,deskRect.width(), deskRect.height());
     ui->tabWidget->setWindowState(Qt::WindowMaximized);
@@ -60,11 +60,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
-    acceptDrops();
+    //acceptDrops();
 
     connect(pMyBezierCruve, SIGNAL(signal_send_points(QVector<MY_POINT>)), pMyRenderArea, SLOT(getDotData(QVector<MY_POINT>)));
+    connect(pMyLagrangeInterpolation, SIGNAL(signal_lagrange_send_points(QVector<MY_POINT>)), pMyLagrangeRenderArea, SLOT(getDotData(QVector<MY_POINT>)));
+
     connect(this, SIGNAL(signal_mouse_lbtn_pos(QPoint)), pMyRenderArea, SLOT(get_lbtn_pos(QPoint)));
-    connect(this, SIGNAL(signal_mouse_lbtn_pos_lagrange(QPoint)), pMyLagrange, SLOT(get_lbtn_pos(QPoint)));
+    connect(this, SIGNAL(signal_mouse_lbtn_pos_lagrange(QPoint)), pMyLagrangeRenderArea, SLOT(get_lbtn_pos(QPoint)));
 
     connect(this, SIGNAL(signal_mouse_lbtn_pos(QPoint)), this, SLOT(slot_draw_bezier(QPoint)));
     connect(this, SIGNAL(signal_set_desktop_geometry(QRect)), pMyRenderArea, SLOT(get_desktop_geometry(QRect)));
@@ -93,7 +95,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     //QString tmpDebugString;
 
     if(event->button() ==Qt::LeftButton){
-        qDebug("mouse left button down.");
+        //qDebug("mouse left button down.");
         //tmpDebugString.clear();
         //tmpDebugString+="mouse left btn!";
         //clearBtn->setText(tmpDebugString);
@@ -101,7 +103,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         if(ui->tabWidget->currentIndex() == 0) return;
 
         QPoint lbtnPpos = event->pos();
-        qDebug("left button posX: %d, pos Y:%d", lbtnPpos.x(), lbtnPpos.y());
+        //qDebug("left button posX: %d, pos Y:%d", lbtnPpos.x(), lbtnPpos.y());
 
         switch (ui->tabWidget->currentIndex()) {
 
@@ -171,7 +173,7 @@ void MainWindow::slot_draw_bezier(QPoint lbtnPpos)
     pMyBezierCruve->bezier_add_point(lbtnPpos);//增加贝塞尔曲线的点数
     if(pMyBezierCruve->mouseDotCnt>2){//鼠标捕获3点才开始画线
         MY_POINT* tmpTestPoint = new MY_POINT[pMyBezierCruve->mouseDotCnt];//新分配n个点的测试点给贝塞尔曲线
-        memcpy(tmpTestPoint, pMyBezierCruve->testPoint, sizeof(MY_POINT)*pMyBezierCruve->mouseDotCnt);
+        memcpy(tmpTestPoint, pMyBezierCruve->testPoint, sizeof(MY_POINT)*pMyBezierCruve->mouseDotCnt);//必须复制，否则永远画的是最后两点的线
         pMyBezierCruve->bezier_set_dot_qty(pMyBezierCruve->mouseDotCnt-1);//一定要实际点数减1
         pMyBezierCruve->bezier_draw_cruve(tmpTestPoint);//核心函数，正式递归画点，画好的点存放在cruveDots
         emit pMyBezierCruve->signal_send_points(pMyBezierCruve->cruveDots);//当画图完毕，pMyBezierCruve->cruveDots已经产生了
