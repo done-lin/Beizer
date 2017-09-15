@@ -21,6 +21,7 @@ public:
      MY_POINT testPoint[DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE];
      qint32 mouseDotCnt;//鼠标捕获的点数，从1开始，捕获一个点就是1
      qint32 CurveKeepOneLineFlag;
+     void bezier_add_point(QPoint lbtnPpos);
 
 signals:
     void signal_send_points(QVector<MY_POINT> cruveDots);

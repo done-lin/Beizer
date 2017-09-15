@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "renderarea.h"
 #include "beziercruve.h"
+#include "lagrangeinterpolation.h"
 #include <QPushButton>
 #include <QTouchEvent>
 
@@ -20,7 +21,9 @@ public:
     ~MainWindow();
     RenderArea *pMyRenderArea;
     BezierCruve *pMyBezierCruve;
-    RenderArea *pMylegrange;
+    RenderArea *pMyLagrange;
+    LagrangeInterpolation *pMyLagrangeInterpolation;
+
 
     QRect get_desktop_geometry(void);
     QPushButton *clearBtn;
@@ -31,7 +34,8 @@ protected:
     bool event(QEvent *e) override;
 
 signals:
-    void signal_mouse_lbtn_pos(QPoint);
+    void signal_mouse_lbtn_pos(QPoint lbtnPpos);
+    void signal_mouse_lbtn_pos_lagrange(QPoint lbtnPpos);
     void signal_set_desktop_geometry(QRect);
     void signal_clear_all_lines(void);
 

@@ -70,3 +70,13 @@ void BezierCruve::bezier_set_max_dot_qty(qint32 maxDot)
 {
     maxDotQty = maxDot;
 }
+
+void BezierCruve::bezier_add_point(QPoint lbtnPpos)
+{
+    mouseDotCnt++;
+    if(mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
+        mouseDotCnt = 0;
+    }
+    testPoint[mouseDotCnt-1].x = lbtnPpos.x();
+    testPoint[mouseDotCnt-1].y = lbtnPpos.y();
+}

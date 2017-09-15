@@ -78,6 +78,7 @@ void RenderArea::getDotData(QVector<MY_POINT> cruveDots)
 
 void RenderArea::get_lbtn_pos(QPoint pos)
 {
+    //qDebug("get mouse pos!");
     mousePos.append(pos);
     update();
 }
