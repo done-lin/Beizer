@@ -114,6 +114,7 @@ void RenderArea::clear_all_lines()
 
 void RenderArea::paintEvent(QPaintEvent * /* event */)
 {
+    QString tmpQstring;
     QPainter painter(this);
     painter.window();
     painter.setPen(pen);
@@ -124,18 +125,23 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     painter.setPen(QPen(Qt::red, 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
     //painter.drawLine(0,0,200,180);
     if(mousePos.size()){
+        qint32 cnt=0;
         foreach (QPoint tmpPoint, mousePos) {
             painter.drawRect(tmpPoint.x()-2, tmpPoint.y()-2, 4, 4);
+            tmpQstring.sprintf("p%d:(%d,%d)", cnt++, tmpPoint.x(), tmpPoint.y());
+            painter.drawText(tmpPoint.x()+3, tmpPoint.y()+3, 100, 20,Qt::AlignHCenter|Qt::AlignVCenter, tmpQstring);
+            tmpQstring.clear();
         }
     }
 
     //painter.drawLine(258, 350, 600, 480);
 
     //qDebug("drawdata size: %d", drawData.size());
-
     if(drawData.size()){
+
         foreach (MY_POINT p, drawData) {
         painter.drawLine(p.x, p.y, p.x, p.y+1);
+
         }
     }
 
