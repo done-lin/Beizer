@@ -7,6 +7,7 @@
 #include <QPen>
 #include "renderarea.h"
 #include "commondata.h"
+#include <QLabel>
 
 
 class RenderArea : public QWidget
@@ -23,6 +24,9 @@ public:
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
+    int recordDotCnt;
+    QVector <QPoint> mousePos;
+
 
 public slots:
     void setShape(Shape shape);
@@ -35,17 +39,19 @@ public slots:
     void get_desktop_geometry(QRect rect);
     void clear_all_lines(void);
 
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 private:
+
     Shape shape;
     QPen pen;
     QBrush brush;
     bool antialiased;
     bool transformed;
     QPixmap pixmap;
-    QVector <MY_POINT> drawData;
-    QVector <QPoint> mousePos;
+    QVector<MY_POINT> drawData;
+
 };
 
 #endif // RENDERAREA_H

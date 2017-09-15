@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     beziercruve.cpp \
-    renderarea.cpp
+    renderarea.cpp \
+    lagrangeinterpolation.cpp
 
 HEADERS  += mainwindow.h \
     beziercruve.h \
     renderarea.h \
-    commondata.h
+    commondata.h \
+    lagrangeinterpolation.h
 
 FORMS    += mainwindow.ui

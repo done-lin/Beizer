@@ -1,10 +1,12 @@
 #include "renderarea.h"
 #include <QPainter>
 #include "qevent.h"
+#include <QLabel>
 
 //! [0]
 RenderArea::RenderArea(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      recordDotCnt(0)
 {
     antialiased = false;
     transformed = false;
@@ -77,7 +79,19 @@ void RenderArea::getDotData(QVector<MY_POINT> cruveDots)
 
 void RenderArea::get_lbtn_pos(QPoint pos)
 {
+    QString tmpQstring;
+    QLabel tmpLabel;
+
+    recordDotCnt++;
+
+    tmpQstring.sprintf("P(%d): x:%d, y:%d", recordDotCnt, pos.x(), pos.y());
+    qDebug("dot record cnt in RenderArea: %d\n Point info string:%s", recordDotCnt, qPrintable(tmpQstring));
     mousePos.append(pos);
+
+    tmpLabel.setText(tmpQstring);
+    tmpLabel.setGeometry(pos.x(), pos.y(), 50, 20);
+    tmpLabel.show();
+
     update();
 }
 
@@ -91,8 +105,11 @@ void RenderArea::clear_all_lines()
 {
     mousePos.clear();
     drawData.clear();
+    recordDotCnt = 0;
+
     update();
 }
+
 
 
 void RenderArea::paintEvent(QPaintEvent * /* event */)

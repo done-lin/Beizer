@@ -14,8 +14,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    mouseDotCnt(0)
+    ui(new Ui::MainWindow)
+    //mouseDotCnt(0)
 {
 
     QGridLayout *mainLayout = new QGridLayout(this);//把renderarea画图区域加入gridlayout
@@ -38,12 +38,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->tabWidget->setCurrentIndex(0);
-    ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     ui->tabWidget->setCurrentIndex(1);//qt tab widget用法，qt widget切换和widget添加按钮，tabwidget添加控件
+    ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
+
     clearBtn = new QPushButton(ui->tabWidget->currentWidget());
     clearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16, deskRect.width()/7-10, deskRect.height()/16);
     clearBtn->setText("clear");
+
+
+    repaintBtn = new QPushButton(ui->tabWidget->currentWidget());
+    repaintBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16*2.2, deskRect.width()/7-10, deskRect.height()/16);
+    repaintBtn->setText("set repaint");
 
     //mainLayout->addWidget(ui->pushButton, 5, 5);
     //mainLayout->setColumnStretch(5,1);
@@ -63,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(signal_set_desktop_geometry(QRect)), pMyRenderArea, SLOT(get_desktop_geometry(QRect)));
     connect(this, SIGNAL(signal_clear_all_lines()), pMyRenderArea, SLOT(clear_all_lines()));
     connect(clearBtn, SIGNAL(clicked(bool)), this, SLOT(on_clearButton_clicked()));
+    connect(repaintBtn, SIGNAL(clicked(bool)), this, SLOT(on_one_line_button_clicked()));
 
 }
 
@@ -83,7 +91,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     //QString tmpDebugString;
 
     if(event->button() ==Qt::LeftButton){
-        qDebug("鼠标 左 键按下");
+        qDebug("mouse left button down.");
         //tmpDebugString.clear();
         //tmpDebugString+="mouse left btn!";
         //clearBtn->setText(tmpDebugString);
@@ -92,29 +100,27 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
         QPoint lbtnPpos = event->pos();
         qDebug("left button posX: %d, pos Y:%d", lbtnPpos.x(), lbtnPpos.y());
-        mouseDotCnt++;
-        if(mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
-            mouseDotCnt = 0;
+        pMyBezierCruve->mouseDotCnt++;
+        if(pMyBezierCruve->mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
+            pMyBezierCruve->mouseDotCnt = 0;
         }
-        testPoint[mouseDotCnt-1].x = lbtnPpos.x();
-        testPoint[mouseDotCnt-1].y = lbtnPpos.y();
+        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].x = lbtnPpos.x();
+        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].y = lbtnPpos.y();
 
         emit signal_mouse_lbtn_pos(lbtnPpos);
 
-        qDebug("mouseDotCnt: %d", mouseDotCnt);
+        qDebug("mouseDotCnt: %d", pMyBezierCruve->mouseDotCnt);
 
 
     }else if(event->button()==Qt::RightButton){
-        qDebug("鼠标 右 键按下");
+        qDebug("mouse right button down.");
     }else if(event->button()==Qt::MidButton){
-        qDebug("鼠标 中 键按下");
+        qDebug("mouse mid button down.");
     }
 }
 
 bool MainWindow::event(QEvent *e)
 {
-    //QString tmpDebugString("no touch!");
-
     switch (e->type()){
     case QEvent::TouchBegin:
         return true;
@@ -130,16 +136,16 @@ bool MainWindow::event(QEvent *e)
         //tmpDebugString.clear();
         //tmpDebugString+="touch points!";
         //clearBtn->setText(tmpDebugString);
-        mouseDotCnt++;
-        if(mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
-            mouseDotCnt = 0;
+        pMyBezierCruve->mouseDotCnt++;
+        if(pMyBezierCruve->mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
+            pMyBezierCruve->mouseDotCnt = 0;
         }
-        testPoint[mouseDotCnt-1].x = static_cast<double>(touchPointsList.last().pos().x());
-        testPoint[mouseDotCnt-1].y = static_cast<double>(touchPointsList.last().pos().y());
+        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].x = static_cast<double>(touchPointsList.last().pos().x());
+        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].y = static_cast<double>(touchPointsList.last().pos().y());
         QPoint tmpPoint(static_cast<int>(touchPointsList.last().pos().x()),
                         static_cast<int>(touchPointsList.last().pos().y()));
         emit signal_mouse_lbtn_pos(tmpPoint);
-        qDebug("touchPointDotCnt: %d", mouseDotCnt);
+        qDebug("touchPointDotCnt: %d", pMyBezierCruve->mouseDotCnt);
 
         return true;
     }
@@ -149,24 +155,77 @@ bool MainWindow::event(QEvent *e)
     }
     return QMainWindow::event(e);
 }
+/***
+void MainWindow::touchEvent(QTouchEvent *ev)
+{
+    //QString tmpDebugString("no touch!");
 
+    switch (ev->type()){
+    case QEvent::TouchBegin:
+        return true;
+    case QEvent::TouchUpdate:
+        return true;
+    case QEvent::TouchEnd:
+    {
+        if(ui->tabWidget->currentIndex() == 0) return false;
+        QTouchEvent *te = static_cast<QTouchEvent *>(e);
+        QList<QTouchEvent::TouchPoint> touchPointsList = te->touchPoints();
+        qDebug("touch points cnt:%d p0PosX: %f, p0Pos Y:%f", touchPointsList.count(),
+               touchPointsList.first().pos().x(), touchPointsList.first().pos().y());
+        //tmpDebugString.clear();
+        //tmpDebugString+="touch points!";
+        //clearBtn->setText(tmpDebugString);
+        pMyBezierCruve->mouseDotCnt++;
+        if(pMyBezierCruve->mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
+            pMyBezierCruve->mouseDotCnt = 0;
+        }
+        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].x = static_cast<double>(touchPointsList.last().pos().x());
+        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].y = static_cast<double>(touchPointsList.last().pos().y());
+        QPoint tmpPoint(static_cast<int>(touchPointsList.last().pos().x()),
+                        static_cast<int>(touchPointsList.last().pos().y()));
+        emit signal_mouse_lbtn_pos(tmpPoint);
+        qDebug("touchPointDotCnt: %d", pMyBezierCruve->mouseDotCnt);
+
+        return true;
+    }
+    default:
+        break;
+
+    }
+
+}
+***/
 
 //bug here
 void MainWindow::slot_draw_bezier(QPoint)
 {
-    if(mouseDotCnt>2){//鼠标捕获3点才开始画线
-        MY_POINT* tmpTestPoint = new MY_POINT[mouseDotCnt];//新分配n个点的测试点给贝塞尔曲线
-        memcpy(tmpTestPoint, testPoint, sizeof(MY_POINT)*mouseDotCnt);
-        pMyBezierCruve->bezier_set_dot_qty(mouseDotCnt-1);//一定要实际点数减1
+    if(pMyBezierCruve->mouseDotCnt>2){//鼠标捕获3点才开始画线
+        MY_POINT* tmpTestPoint = new MY_POINT[pMyBezierCruve->mouseDotCnt];//新分配n个点的测试点给贝塞尔曲线
+        memcpy(tmpTestPoint, pMyBezierCruve->testPoint, sizeof(MY_POINT)*pMyBezierCruve->mouseDotCnt);
+        pMyBezierCruve->bezier_set_dot_qty(pMyBezierCruve->mouseDotCnt-1);//一定要实际点数减1
         pMyBezierCruve->bezier_draw_cruve(tmpTestPoint);//核心函数，正式递归画点，画好的点存放在cruveDots
         emit pMyBezierCruve->signal_send_points(pMyBezierCruve->cruveDots);//当画图完毕，pMyBezierCruve->cruveDots已经产生了
+        if(pMyBezierCruve->CurveKeepOneLineFlag){
+            pMyBezierCruve->cruveDots.clear();
+        }
         delete []tmpTestPoint;
     }
+
 }
 
 void MainWindow::on_clearButton_clicked()
 {
-    mouseDotCnt = 0;
+    pMyBezierCruve->mouseDotCnt = 0;
     pMyBezierCruve->cruveDots.clear();
     emit signal_clear_all_lines();
 }
+
+void MainWindow::on_one_line_button_clicked()
+{
+    pMyBezierCruve->CurveKeepOneLineFlag = !pMyBezierCruve->CurveKeepOneLineFlag;
+    if(pMyBezierCruve->CurveKeepOneLineFlag)
+        repaintBtn->setStyleSheet("background-color:#FF0000");
+    else
+        repaintBtn->setStyleSheet("background-color:#00FF00");
+}
+

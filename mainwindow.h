@@ -5,6 +5,7 @@
 #include "renderarea.h"
 #include "beziercruve.h"
 #include <QPushButton>
+#include <QTouchEvent>
 
 namespace Ui {
 class MainWindow;
@@ -21,10 +22,9 @@ public:
     BezierCruve *pMyBezierCruve;
     RenderArea *pMylegrange;
 
-    MY_POINT testPoint[DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE];
-    qint32 mouseDotCnt;//鼠标捕获的点数，从1开始，捕获一个点就是1
     QRect get_desktop_geometry(void);
     QPushButton *clearBtn;
+    QPushButton *repaintBtn;
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -40,6 +40,7 @@ public slots:
 
 private slots:
     void on_clearButton_clicked();
+    void on_one_line_button_clicked();
 
 private:
     Ui::MainWindow *ui;

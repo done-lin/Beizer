@@ -3,8 +3,15 @@
 BezierCruve::BezierCruve(QObject *parent) : QObject(parent),
     maxDotQty(0),
     dotQty(0),
-    dotInterval(1)
+    dotInterval(1),
+    mouseDotCnt(0),
+    CurveKeepOneLineFlag(0)
 {
+    for(int cnt=0; cnt<DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE; cnt++){
+        testPoint[cnt].x=-512;
+        testPoint[cnt].y=-512;
+    }
+
     cruveDots.clear();
     dotQty = 0;
     dotInterval = 1;

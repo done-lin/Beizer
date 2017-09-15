@@ -18,6 +18,9 @@ public:
      void bezier_set_dot_qty(qint32 dot);
      void bezier_set_max_dot_qty(qint32 maxDot);
      QVector<MY_POINT> cruveDots;
+     MY_POINT testPoint[DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE];
+     qint32 mouseDotCnt;//鼠标捕获的点数，从1开始，捕获一个点就是1
+     qint32 CurveKeepOneLineFlag;
 
 signals:
     void signal_send_points(QVector<MY_POINT> cruveDots);
