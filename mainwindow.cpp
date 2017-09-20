@@ -43,25 +43,34 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->tabWidget->setCurrentIndex(0);
-    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+    ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     ui->tabWidget->setCurrentIndex(1);//qt tab widget用法，qt widget切换和widget添加按钮，tabwidget添加控件
-    ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    ui->tabWidget->currentWidget()->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    //ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     clearBtn = new QPushButton(ui->tabWidget->currentWidget());
     clearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16-5, deskRect.width()/7-10, deskRect.height()/16);
     clearBtn->setText("clear");
+    clearBtn->setAttribute(Qt::WA_AcceptTouchEvents, true);
 
 
     repaintBtn = new QPushButton(ui->tabWidget->currentWidget());
     repaintBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16*2.1-5, deskRect.width()/7-10, deskRect.height()/16);
     repaintBtn->setText("set oneline");
     repaintBtn->setStyleSheet("background-color:#00FF00");
+    repaintBtn->setAttribute(Qt::WA_AcceptTouchEvents, true);
 
     ui->tabWidget->setCurrentIndex(2);
     LagrangeClearBtn = new QPushButton(ui->tabWidget->currentWidget());
     LagrangeClearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16-5, deskRect.width()/7-10, deskRect.height()/16);
     LagrangeClearBtn->setText("Clear");
+    LagrangeClearBtn->setAttribute(Qt::WA_AcceptTouchEvents, true);
+
+    ui->tabWidget->currentWidget()->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+    ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
     //acceptDrops();
@@ -151,16 +160,38 @@ bool MainWindow::event(QEvent *e)
         qDebug("touch points cnt:%d p0PosX: %f, p0Pos Y:%f", touchPointsList.count(),
                touchPointsList.first().pos().x(), touchPointsList.first().pos().y());
 
-        pMyBezierCruve->mouseDotCnt++;
-        if(pMyBezierCruve->mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
-            pMyBezierCruve->mouseDotCnt = 0;
+        QPoint lbtnPpos;
+        lbtnPpos.setX(static_cast<int>(touchPointsList.last().pos().x()));
+        lbtnPpos.setY(static_cast<int>(touchPointsList.last().pos().y()));
+        switch (ui->tabWidget->currentIndex()) {
+
+        case 1:
+            emit signal_mouse_lbtn_pos(lbtnPpos);
+            //qDebug("mouseDotCnt: %d", pMyBezierCruve->mouseDotCnt);
+            break;
+
+        case 2:
+            emit signal_mouse_lbtn_pos_lagrange(lbtnPpos);
+            break;
+
+        case 3:
+
+            break;
+
+        default:
+            break;
         }
-        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].x = static_cast<double>(touchPointsList.last().pos().x());
-        pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].y = static_cast<double>(touchPointsList.last().pos().y());
-        QPoint tmpPoint(static_cast<int>(touchPointsList.last().pos().x()),
-                        static_cast<int>(touchPointsList.last().pos().y()));
-        emit signal_mouse_lbtn_pos(tmpPoint);
-        qDebug("touchPointDotCnt: %d", pMyBezierCruve->mouseDotCnt);
+
+        //pMyBezierCruve->mouseDotCnt++;
+        //if(pMyBezierCruve->mouseDotCnt>DEF_MAX_DOTS_QTY_OF_BEZIER_CRUVE){
+        //    pMyBezierCruve->mouseDotCnt = 0;
+        //}
+        //pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].x = static_cast<double>(touchPointsList.last().pos().x());
+        //pMyBezierCruve->testPoint[pMyBezierCruve->mouseDotCnt-1].y = static_cast<double>(touchPointsList.last().pos().y());
+        //QPoint tmpPoint(static_cast<int>(touchPointsList.last().pos().x()),
+        //                static_cast<int>(touchPointsList.last().pos().y()));
+        //emit signal_mouse_lbtn_pos(tmpPoint);
+        //qDebug("touchPointDotCnt: %d", pMyBezierCruve->mouseDotCnt);
 
         return true;
     }
