@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include "commondata.h"
+#include <QPoint>
 
 class LagrangeInterpolation : public QObject
 {
@@ -27,6 +28,7 @@ signals:
     void signal_lagrange_send_points(QVector<MY_POINT> lagrangeDots);
 public slots:
     void slot_get_lagrange_mouse_lbtn_pos(QPoint lbtnPpos);
+    void slot_clear_all_dots(void);
 };
 
 #endif // LAGRANGEINTERPOLATION_H

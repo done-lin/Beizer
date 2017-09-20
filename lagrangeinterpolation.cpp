@@ -1,4 +1,5 @@
 #include "lagrangeinterpolation.h"
+#include <QPoint>
 
 LagrangeInterpolation::LagrangeInterpolation(QObject *parent) : QObject(parent),
     res_Y(0),
@@ -85,5 +86,11 @@ void LagrangeInterpolation::slot_get_lagrange_mouse_lbtn_pos(QPoint lbtnPpos)
 
 
 
+}
+
+void LagrangeInterpolation::slot_clear_all_dots()
+{
+    gDotCnt = 0;
+    lagrangeDots.clear();
 }
 

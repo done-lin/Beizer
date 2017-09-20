@@ -1,9 +1,10 @@
 #include "beziercruve.h"
+#include <QPoint>
 
 BezierCruve::BezierCruve(QObject *parent) : QObject(parent),
-    maxDotQty(0),
     dotQty(0),
     dotInterval(1),
+    maxDotQty(0),
     mouseDotCnt(0),
     CurveKeepOneLineFlag(0)
 {

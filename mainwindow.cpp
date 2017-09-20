@@ -58,6 +58,10 @@ MainWindow::MainWindow(QWidget *parent) :
     repaintBtn->setText("set oneline");
     repaintBtn->setStyleSheet("background-color:#00FF00");
 
+    ui->tabWidget->setCurrentIndex(2);
+    LagrangeClearBtn = new QPushButton(ui->tabWidget->currentWidget());
+    LagrangeClearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16-5, deskRect.width()/7-10, deskRect.height()/16);
+    LagrangeClearBtn->setText("Clear");
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
     //acceptDrops();
@@ -74,7 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(clearBtn, SIGNAL(clicked(bool)), this, SLOT(on_clearButton_clicked()));
     connect(repaintBtn, SIGNAL(clicked(bool)), this, SLOT(on_one_line_button_clicked()));
     connect(this, SIGNAL(signal_mouse_lbtn_pos_lagrange(QPoint)), pMyLagrangeInterpolation, SLOT(slot_get_lagrange_mouse_lbtn_pos(QPoint)));
-
+    connect(LagrangeClearBtn, SIGNAL(clicked(bool)), pMyLagrangeInterpolation, SLOT(slot_clear_all_dots()));
+    connect(LagrangeClearBtn, SIGNAL(clicked(bool)), pMyLagrangeRenderArea, SLOT(clear_all_lines()));
 }
 
 MainWindow::~MainWindow()

@@ -28,7 +28,7 @@ public:
     QRect get_desktop_geometry(void);
     QPushButton *clearBtn;
     QPushButton *repaintBtn;
-
+    QPushButton *LagrangeClearBtn;
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     bool event(QEvent *e) override;
