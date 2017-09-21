@@ -29,6 +29,7 @@ public:
     QPushButton *clearBtn;
     QPushButton *repaintBtn;
     QPushButton *LagrangeClearBtn;
+    int fixPosY;
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     bool event(QEvent *e) override;

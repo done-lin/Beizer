@@ -15,7 +15,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    fixPosY(0)
     //mouseDotCnt(0)
 {
 
@@ -41,40 +42,46 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setGeometry(0,0,deskRect.width(), deskRect.height());
     ui->tabWidget->setWindowState(Qt::WindowMaximized);
 
-
+////////////////////////////////////////////////
     ui->tabWidget->setCurrentIndex(0);
     ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+///////////////////////////////////////////////
 
     ui->tabWidget->setCurrentIndex(1);//qt tab widget用法，qt widget切换和widget添加按钮，tabwidget添加控件
     ui->tabWidget->currentWidget()->setAttribute(Qt::WA_AcceptTouchEvents, true);
-    //ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
-    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+////////////////////////////////////////////////
 
     clearBtn = new QPushButton(ui->tabWidget->currentWidget());
     clearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16-5, deskRect.width()/7-10, deskRect.height()/16);
     clearBtn->setText("clear");
     clearBtn->setAttribute(Qt::WA_AcceptTouchEvents, true);
 
-
     repaintBtn = new QPushButton(ui->tabWidget->currentWidget());
     repaintBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16*2.1-5, deskRect.width()/7-10, deskRect.height()/16);
     repaintBtn->setText("set oneline");
     repaintBtn->setStyleSheet("background-color:#00FF00");
     repaintBtn->setAttribute(Qt::WA_AcceptTouchEvents, true);
-
+////////////////////////////////////////////////////
     ui->tabWidget->setCurrentIndex(2);
+    ui->tabWidget->currentWidget()->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+///////////////////////////////////////////////////
     LagrangeClearBtn = new QPushButton(ui->tabWidget->currentWidget());
     LagrangeClearBtn->setGeometry(deskRect.width()/7*6, deskRect.height()/16-5, deskRect.width()/7-10, deskRect.height()/16);
     LagrangeClearBtn->setText("Clear");
     LagrangeClearBtn->setAttribute(Qt::WA_AcceptTouchEvents, true);
 
-    ui->tabWidget->currentWidget()->setAttribute(Qt::WA_AcceptTouchEvents, true);
-    //ui->tabWidget->currentWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+////////////////////////////////////////////
     ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    ui->tabWidget->tabBar()->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    fixPosY = ui->tabWidget->tabBar()->height()/3*2;//fix the coordinate y!
+    //qDebug("fixPosY:%d", ui->tabWidget->tabBar()->height());
+///////////////////////////////////////////
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
-    //acceptDrops();
 
+//==============================================================//
     connect(pMyBezierCruve, SIGNAL(signal_send_points(QVector<MY_POINT>)), pMyRenderArea, SLOT(getDotData(QVector<MY_POINT>)));
     connect(pMyLagrangeInterpolation, SIGNAL(signal_lagrange_send_points(QVector<MY_POINT>)), pMyLagrangeRenderArea, SLOT(getDotData(QVector<MY_POINT>)));
 
@@ -84,11 +91,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(signal_mouse_lbtn_pos(QPoint)), this, SLOT(slot_draw_bezier(QPoint)));
     connect(this, SIGNAL(signal_set_desktop_geometry(QRect)), pMyRenderArea, SLOT(get_desktop_geometry(QRect)));
     connect(this, SIGNAL(signal_clear_all_lines()), pMyRenderArea, SLOT(clear_all_lines()));
-    connect(clearBtn, SIGNAL(clicked(bool)), this, SLOT(on_clearButton_clicked()));
-    connect(repaintBtn, SIGNAL(clicked(bool)), this, SLOT(on_one_line_button_clicked()));
+    connect(clearBtn, SIGNAL(pressed()), this, SLOT(on_clearButton_clicked()));
+    connect(repaintBtn, SIGNAL(pressed()), this, SLOT(on_one_line_button_clicked()));
     connect(this, SIGNAL(signal_mouse_lbtn_pos_lagrange(QPoint)), pMyLagrangeInterpolation, SLOT(slot_get_lagrange_mouse_lbtn_pos(QPoint)));
-    connect(LagrangeClearBtn, SIGNAL(clicked(bool)), pMyLagrangeInterpolation, SLOT(slot_clear_all_dots()));
-    connect(LagrangeClearBtn, SIGNAL(clicked(bool)), pMyLagrangeRenderArea, SLOT(clear_all_lines()));
+    connect(LagrangeClearBtn, SIGNAL(released()), pMyLagrangeInterpolation, SLOT(slot_clear_all_dots()));
+    connect(LagrangeClearBtn, SIGNAL(released()), pMyLagrangeRenderArea, SLOT(clear_all_lines()));
+//==============================================================//
 }
 
 MainWindow::~MainWindow()
@@ -116,8 +124,13 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
         if(ui->tabWidget->currentIndex() == 0) return;
 
+        //QPoint point05(0, 10);
         QPoint lbtnPpos = event->pos();
-        //qDebug("left button posX: %d, pos Y:%d", lbtnPpos.x(), lbtnPpos.y());
+        lbtnPpos.setY(lbtnPpos.y() - fixPosY);
+        //qDebug("y:%d", );
+        //lbtnPpos = mapToGlobal(ui->tabWidget->pos());
+        //lbtnPpos = mapFrom(ui->tabWidget->currentWidget(), point05);
+        qDebug("left button posX: %d, pos Y:%d", lbtnPpos.x(), lbtnPpos.y());
 
         switch (ui->tabWidget->currentIndex()) {
 
