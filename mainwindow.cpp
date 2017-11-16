@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     pMyRenderArea->setFixedSize(deskRect.width(), deskRect.height());
     ui->setupUi(this);
 
+    tabbarRects.clear();
+
     ui->label->setGeometry(deskRect.width()/2-ui->label->width()/2, (deskRect.height()/2-ui->label->height()/2)/2, ui->label->width(), ui->label->height());
     ui->label_2->setGeometry(deskRect.width()/2-ui->label_2->width()/2, (deskRect.height()/2-ui->label_2->height()/2)*1.2, ui->label_2->width(), ui->label_2->height());
 
@@ -81,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
 
-//==============================================================//
+//==================connect signals to slots=======================//
     connect(pMyBezierCruve, SIGNAL(signal_send_points(QVector<MY_POINT>)), pMyRenderArea, SLOT(getDotData(QVector<MY_POINT>)));
     connect(pMyLagrangeInterpolation, SIGNAL(signal_lagrange_send_points(QVector<MY_POINT>)), pMyLagrangeRenderArea, SLOT(getDotData(QVector<MY_POINT>)));
 
@@ -97,6 +99,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(LagrangeClearBtn, SIGNAL(released()), pMyLagrangeInterpolation, SLOT(slot_clear_all_dots()));
     connect(LagrangeClearBtn, SIGNAL(released()), pMyLagrangeRenderArea, SLOT(clear_all_lines()));
 //==============================================================//
+    tabbarRects.append(get_tabbar_geometry(0));
+    tabbarRects.append(get_tabbar_geometry(1));
+    tabbarRects.append(get_tabbar_geometry(2));
+
+    foreach (QRect tmpDebugRect, tabbarRects) {
+       qDebug("tabbar Rects geometry: x:%d, y:%d, w:%d, h:%d", tmpDebugRect.x(),tmpDebugRect.x(),
+              tmpDebugRect.width(),tmpDebugRect.height());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -109,6 +119,20 @@ QRect MainWindow::get_desktop_geometry()
     QDesktopWidget *dwsktopwidget = QApplication::desktop();
     QRect deskrect = dwsktopwidget->availableGeometry();
     return deskrect;
+}
+
+QRect MainWindow::get_tabbar_geometry(int tabbarIndex)
+{
+    int x,y,w,h;
+    QRect tmpRect;
+
+    ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->tabBar()->setEnabled(true);
+    ui->tabWidget->tabBar()->tabRect(tabbarIndex).getRect(&x, &y, &w, &h);
+    qDebug("Tabbar:%d, Rect:(x:%d, y:%d, w:%d, h:%d)",x, y, w, h);
+
+    tmpRect.setX(x); tmpRect.setY(y); tmpRect.setWidth(w); tmpRect.setHeight(h);
+    return tmpRect;
 }
 
 
@@ -167,11 +191,24 @@ bool MainWindow::event(QEvent *e)
         return true;
     case QEvent::TouchEnd:
     {
-        if(ui->tabWidget->currentIndex() == 0) return false;
+
         QTouchEvent *te = static_cast<QTouchEvent *>(e);
         QList<QTouchEvent::TouchPoint> touchPointsList = te->touchPoints();
         qDebug("touch points cnt:%d p0PosX: %f, p0Pos Y:%f", touchPointsList.count(),
                touchPointsList.first().pos().x(), touchPointsList.first().pos().y());
+
+        if(touchPointsList.last().pos().x() < (tabbarRects[0].x()+tabbarRects[0].width()) &&
+                touchPointsList.last().pos().y() < tabbarRects[0].height()){
+            ui->tabWidget->setCurrentIndex(0);
+        }else if(touchPointsList.last().pos().x() < (tabbarRects[1].x()+tabbarRects[1].width()) &&
+                 touchPointsList.last().pos().y() < tabbarRects[1].height()){
+            ui->tabWidget->setCurrentIndex(1);
+        }else if(touchPointsList.last().pos().x() < (tabbarRects[2].x()+tabbarRects[2].width()) &&
+                 touchPointsList.last().pos().y() < tabbarRects[2].height()){
+            ui->tabWidget->setCurrentIndex(2);
+        }
+
+        if(ui->tabWidget->currentIndex() == 0) return false;
 
         QPoint lbtnPpos;
         lbtnPpos.setX(static_cast<int>(touchPointsList.last().pos().x()));

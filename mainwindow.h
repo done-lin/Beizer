@@ -26,10 +26,13 @@ public:
 
 
     QRect get_desktop_geometry(void);
+    QRect get_tabbar_geometry(int tabbarIndex);
+
     QPushButton *clearBtn;
     QPushButton *repaintBtn;
     QPushButton *LagrangeClearBtn;
     int fixPosY;
+    QVector<QRect> tabbarRects;
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     bool event(QEvent *e) override;
