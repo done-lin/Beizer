@@ -200,12 +200,15 @@ bool MainWindow::event(QEvent *e)
         if(touchPointsList.last().pos().x() < (tabbarRects[0].x()+tabbarRects[0].width()) &&
                 touchPointsList.last().pos().y() < tabbarRects[0].height()){
             ui->tabWidget->setCurrentIndex(0);
+            return true;
         }else if(touchPointsList.last().pos().x() < (tabbarRects[1].x()+tabbarRects[1].width()) &&
                  touchPointsList.last().pos().y() < tabbarRects[1].height()){
             ui->tabWidget->setCurrentIndex(1);
+            return true;
         }else if(touchPointsList.last().pos().x() < (tabbarRects[2].x()+tabbarRects[2].width()) &&
                  touchPointsList.last().pos().y() < tabbarRects[2].height()){
             ui->tabWidget->setCurrentIndex(2);
+            return true;
         }
 
         if(ui->tabWidget->currentIndex() == 0) return false;
