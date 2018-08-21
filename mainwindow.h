@@ -27,6 +27,7 @@ public:
 
     QRect get_desktop_geometry(void);
     QRect get_tabbar_geometry(int tabbarIndex);
+    bool judge_pos_in_button_or_not(int x, int y, QPushButton *btn);
 
     QPushButton *clearBtn;
     QPushButton *repaintBtn;

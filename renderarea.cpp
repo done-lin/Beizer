@@ -116,7 +116,7 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
         foreach (QPoint tmpPoint, mousePos) {
             painter.drawRect(tmpPoint.x()-2, tmpPoint.y()-2, 4, 4);
             tmpQstring.sprintf("p%d:(%d,%d)", cnt++, tmpPoint.x(), tmpPoint.y());
-            painter.drawText(tmpPoint.x()+3, tmpPoint.y()+3, 100, 20,Qt::AlignHCenter|Qt::AlignVCenter, tmpQstring);
+            painter.drawText(tmpPoint.x()+3, tmpPoint.y()+3, 220, 50,Qt::AlignHCenter|Qt::AlignVCenter, tmpQstring);
             tmpQstring.clear();
         }
     }

@@ -34,9 +34,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     tabbarRects.clear();
 
-    ui->label->setGeometry(deskRect.width()/2-ui->label->width()/2, (deskRect.height()/2-ui->label->height()/2)/2, ui->label->width(), ui->label->height());
-    ui->label_2->setGeometry(deskRect.width()/2-ui->label_2->width()/2, (deskRect.height()/2-ui->label_2->height()/2)*1.2, ui->label_2->width(), ui->label_2->height());
-
+    ui->label->setGeometry(deskRect.width()/2-ui->label->width()/2, (deskRect.height()/2-ui->label->height()/2)/2, ui->label->width()*1.5, ui->label->height()*1.5);
+    ui->label_2->setGeometry(deskRect.width()/2-ui->label_2->width()/2, (deskRect.height()/2-ui->label_2->height()/2)*1.2, ui->label_2->width()*1.5, ui->label_2->height()*1.5);
+    ui->label->setWordWrap(true);
+    ui->label_2->setWordWrap(true);
 
     ui->tabWidget->addTab(pMyRenderArea, tr("BezierRender"));
     ui->tabWidget->addTab(pMyLagrangeRenderArea, tr("legrange"));
@@ -77,8 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 ////////////////////////////////////////////
     ui->tabWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
     ui->tabWidget->tabBar()->setAttribute(Qt::WA_AcceptTouchEvents, true);
-    fixPosY = ui->tabWidget->tabBar()->height()/3*2;//fix the coordinate y!
-    //qDebug("fixPosY:%d", ui->tabWidget->tabBar()->height());
+
 ///////////////////////////////////////////
 
     this->setAttribute(Qt::WA_AcceptTouchEvents, true);//允许qt接受触屏事件，可操作触屏。
@@ -93,8 +93,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(signal_mouse_lbtn_pos(QPoint)), this, SLOT(slot_draw_bezier(QPoint)));
     connect(this, SIGNAL(signal_set_desktop_geometry(QRect)), pMyRenderArea, SLOT(get_desktop_geometry(QRect)));
     connect(this, SIGNAL(signal_clear_all_lines()), pMyRenderArea, SLOT(clear_all_lines()));
-    connect(clearBtn, SIGNAL(pressed()), this, SLOT(on_clearButton_clicked()));
-    connect(repaintBtn, SIGNAL(pressed()), this, SLOT(on_one_line_button_clicked()));
+    connect(clearBtn, SIGNAL(released()), this, SLOT(on_clearButton_clicked()));
+    connect(repaintBtn, SIGNAL(released()), this, SLOT(on_one_line_button_clicked()));
     connect(this, SIGNAL(signal_mouse_lbtn_pos_lagrange(QPoint)), pMyLagrangeInterpolation, SLOT(slot_get_lagrange_mouse_lbtn_pos(QPoint)));
     connect(LagrangeClearBtn, SIGNAL(released()), pMyLagrangeInterpolation, SLOT(slot_clear_all_dots()));
     connect(LagrangeClearBtn, SIGNAL(released()), pMyLagrangeRenderArea, SLOT(clear_all_lines()));
@@ -102,7 +102,8 @@ MainWindow::MainWindow(QWidget *parent) :
     tabbarRects.append(get_tabbar_geometry(0));
     tabbarRects.append(get_tabbar_geometry(1));
     tabbarRects.append(get_tabbar_geometry(2));
-
+    fixPosY = tabbarRects[0].height();//fix the coordinate y!
+    //qDebug("fixPosY:%d", ui->tabWidget->tabBar()->height());
     foreach (QRect tmpDebugRect, tabbarRects) {
        qDebug("tabbar Rects geometry: x:%d, y:%d, w:%d, h:%d", tmpDebugRect.x(),tmpDebugRect.x(),
               tmpDebugRect.width(),tmpDebugRect.height());
@@ -133,6 +134,17 @@ QRect MainWindow::get_tabbar_geometry(int tabbarIndex)
 
     tmpRect.setX(x); tmpRect.setY(y); tmpRect.setWidth(w); tmpRect.setHeight(h);
     return tmpRect;
+}
+
+bool MainWindow::judge_pos_in_button_or_not(int x, int y, QPushButton *btn)
+{
+    if(   ((x > btn->pos().x()) && x < (btn->pos().x() + btn->width())) &&
+            ((y > btn->pos().y()) && y < (btn->pos().y() + btn->height()))   ){
+        return true;
+    }else{
+        return false;
+    }
+    return false;
 }
 
 
@@ -215,15 +227,28 @@ bool MainWindow::event(QEvent *e)
 
         QPoint lbtnPpos;
         lbtnPpos.setX(static_cast<int>(touchPointsList.last().pos().x()));
-        lbtnPpos.setY(static_cast<int>(touchPointsList.last().pos().y()));
+        lbtnPpos.setY(static_cast<int>(touchPointsList.last().pos().y()-fixPosY));
         switch (ui->tabWidget->currentIndex()) {
 
         case 1:
+            if(judge_pos_in_button_or_not(lbtnPpos.x(), lbtnPpos.y(), clearBtn)){
+                emit clearBtn->released();
+                return true;
+            }
+            if(judge_pos_in_button_or_not(lbtnPpos.x(), lbtnPpos.y(), repaintBtn)){
+                emit repaintBtn->released();
+                return true;
+            }
             emit signal_mouse_lbtn_pos(lbtnPpos);
             //qDebug("mouseDotCnt: %d", pMyBezierCruve->mouseDotCnt);
             break;
 
         case 2:
+            if(judge_pos_in_button_or_not(lbtnPpos.x(), lbtnPpos.y(), LagrangeClearBtn)){
+                emit LagrangeClearBtn->released();
+                return true;
+            }
+
             emit signal_mouse_lbtn_pos_lagrange(lbtnPpos);
             break;
 
